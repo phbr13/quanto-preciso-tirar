@@ -4,7 +4,7 @@ Calculadora de médias do semestre. Você preenche as notas que já tem
 e ela mostra **quanto precisa tirar nas avaliações que faltam** para
 fechar a média desejada.
 
-👉 **Use aqui:** https://SEUUSUARIO.github.io/quanto-preciso-tirar
+👉 **Use aqui:** https://phbr13.github.io/quanto-preciso-tirar
 
 ## ⚠️ Aviso: projeto vibecoded
 
