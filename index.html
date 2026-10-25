@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculadora de médias</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f1;--card:#fff;--ink:#14231f;--mute:#5d6f69;--line:#d3dedb;--acc:#0f6b5c;--accbg:#d9efe9;--ok:#1b7a3d;--bad:#b3261e;--warn:#9a5b00;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1816;--card:#16251f;--ink:#e6f0ec;--mute:#93a8a1;--line:#2a3d37;--acc:#58c7b0;--accbg:#173a33;--ok:#6fd392;--bad:#ff8a80;--warn:#f0b35a}}
+:root[data-theme="dark"]{--bg:#0e1816;--card:#16251f;--ink:#e6f0ec;--mute:#93a8a1;--line:#2a3d37;--acc:#58c7b0;--accbg:#173a33;--ok:#6fd392;--bad:#ff8a80;--warn:#f0b35a}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 Figtree,system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:16px 14px 40px}
+h1{font:800 26px/1.1 'Bricolage Grotesque',Figtree,sans-serif;margin:6px 0 14px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px}
+.tab{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:99px;font:600 14px Figtree,sans-serif;cursor:pointer}
+.tab[aria-selected=true]{background:var(--acc);border-color:var(--acc);color:var(--bg)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.row label{flex:1;font-size:15px}
+.row small{display:block;color:var(--mute);font-size:12px}
+input.n{width:84px;padding:9px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:600 16px Figtree,sans-serif;text-align:center}
+input.n:focus-visible,button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.sub{font-weight:600;margin:10px 0 2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chips input.n{width:64px}
+.mini{border:1px solid var(--line);background:none;color:var(--mute);border-radius:8px;padding:8px 10px;font:600 14px Figtree,sans-serif;cursor:pointer}
+.res{border-radius:14px;padding:16px;margin-bottom:12px;background:var(--accbg)}
+.big{font:800 52px/1 'Bricolage Grotesque',Figtree,sans-serif;color:var(--acc)}
+.res.bad .big,.res.bad{color:var(--bad)}.res.bad{background:color-mix(in srgb,var(--bad) 12%,var(--card))}
+.res.ok .big{color:var(--ok)}
+.msg{margin:6px 0 0;font-size:15px}
+.stats{display:flex;gap:10px;margin-top:12px}
+.stats div{flex:1;background:var(--card);border-radius:10px;padding:8px 10px;font-size:13px;color:var(--mute)}
+.stats b{display:block;font-size:20px;color:var(--ink)}
+.note{font-size:13px;color:var(--mute);margin:4px 0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.top .row{margin:0}
+.link{background:none;border:0;color:var(--mute);text-decoration:underline;font:14px Figtree,sans-serif;cursor:pointer;padding:6px 0}
+</style>
+</head>
+<body>
+<main>
+<h1>Calculadora de médias</h1>
+<div class="tabs" id="tabs" role="tablist"></div>
+<div class="card top"><div class="row"><label for="meta">Média que quero fechar</label><input class="n" id="meta" inputmode="decimal" value="6"></div></div>
+<div id="out"></div>
+<div id="inputs" class="card"></div>
+<div id="notes" class="card"></div>
+<div class="top" style="flex-wrap:wrap">
+<button class="link" id="reset">Limpar notas desta matéria</button>
+<span><button class="link" id="exp">Exportar backup</button> · <button class="link" id="imp">Importar backup</button></span>
+</div>
+<input type="file" id="file" accept="application/json" hidden>
+<p class="note" id="stmsg"></p>
+</main>
+<script>
+const S=[
+{id:'arq',tab:'Arquitetura',name:'Arquitetura de Computadores',notes:['Nota final = ATI×0,50 + ATG×0,15 + ATP×0,25 + ATS×0,10.','Aprovação: nota ≥ 6,0 e presença ≥ 75%. Avaliação complementar: nota ≥ 5 (confira o texto completo no plano).','ATP e ATS: média simples das notas lançadas. Se já tiver alguma, a calculadora assume que a média delas se mantém.'],
+ comps:[1,2,3].map(i=>({k:'s',n:'ATI '+i,sub:'Prova individual',w:.5/3})).concat([1,2,3].map(i=>({k:'s',n:'ATG '+i,sub:'Atividade em grupo',w:.15/3})),[{k:'v',n:'ATP',sub:'Práticas, média simples',w:.25},{k:'v',n:'ATS',sub:'Simulações, média simples',w:.10}])},
+{id:'est',tab:'Estatística',name:'Estatística Básica',notes:['MF = EXERC×0,10 + P1×0,30 + P2×0,30 + P3×0,30.','Critérios de recuperação estão no plano de ensino do SIGA, não incluídos aqui. Padrão usado: média ≥ 6,0 e 75% de presença.'],
+ comps:[{k:'v',n:'EXERC',sub:'Exercícios, média simples',w:.1},{k:'s',n:'P1',sub:'23/09/2026',w:.3},{k:'s',n:'P2',sub:'09/11/2026',w:.3},{k:'s',n:'P3',sub:'16/12/2026',w:.3}]},
+{id:'log',tab:'Lógica',name:'Lógica Matemática',top2:true,notes:['Média final = média das duas maiores notas entre P1, P2 e SUB.','Avaliação complementar: com 75% de frequência e média entre 5,0 e 5,9, prova única; NMF = 0,86×AC, só vale se for maior que a média.','Se só uma prova estiver preenchida, o valor mostrado é o necessário em cada prova que falta. Fazendo apenas uma delas, o necessário é maior.'],
+ comps:[{k:'s',n:'P1',sub:'16/10/2026',w:0},{k:'s',n:'P2',sub:'11/12/2026',w:0},{k:'s',n:'SUB',sub:'18/12/2026',w:0}]},
+{id:'geo',tab:'Geometria',name:'Geometria Analítica',notes:['Média = (P1 + P2 + P3) / 3.','Padrão usado: média ≥ 6,0 e 75% de presença.'],
+ comps:[1,2,3].map(i=>({k:'s',n:'P'+i,sub:'',w:1/3}))},
+{id:'poo',tab:'POO',name:'Programação Orientada a Objetos',notes:['NF = MP×0,8 + MT×0,2, com MP = (P1+P2)/2 e MT = (T1 + 2×T2 + 3×T3)/6.','A Prova Repositiva (15/12) não está incluída porque a regra dela não está no cronograma.'],
+ comps:[{k:'s',n:'P1',sub:'13/10/2026',w:.4},{k:'s',n:'P2',sub:'14/12/2026',w:.4},{k:'s',n:'T1',sub:'entrega 09/10 · peso 1',w:.2/6},{k:'s',n:'T2',sub:'entrega 13/11 · peso 2',w:.4/6},{k:'s',n:'T3',sub:'entrega 11/12 · peso 3',w:.6/6}]},
+{id:'aed',tab:'AED 1',name:'Algoritmos e Estrutura de Dados 1',notes:['Média = Projeto×0,5 + Provas×0,4 + Participação×0,1.','Projeto = Fase 1×0,2 + Fase 2×0,2 + Completo×0,3 + Apresentação×0,3. Provas = (P1+P2)/2.','Aprovação: média ≥ 6 e 75% de frequência. Avaliação complementar com nota ≥ 5: se passar, a média vira 6.'],
+ comps:[{k:'s',n:'Projeto fase 1',sub:'peso 20% do projeto',w:.1},{k:'s',n:'Projeto fase 2',sub:'peso 20% do projeto',w:.1},{k:'s',n:'Projeto completo',sub:'peso 30% do projeto',w:.15},{k:'s',n:'Apresentação',sub:'peso 30% do projeto',w:.15},{k:'s',n:'Prova 1',sub:'',w:.2},{k:'s',n:'Prova 2',sub:'',w:.2},{k:'v',n:'Participação (NP)',sub:'Atividades, média simples',w:.1}]}
+];
+let st={cur:'arq',meta:'6',g:{}};
+try{const r=localStorage.getItem('medias_v1');if(r)st=Object.assign(st,JSON.parse(r))}catch(e){}
+const save=()=>{try{localStorage.setItem('medias_v1',JSON.stringify(st))}catch(e){}};
+const $=id=>document.getElementById(id);
+const num=s=>{if(s==null||String(s).trim()==='')return null;const v=parseFloat(String(s).replace(',','.'));return isNaN(v)?null:Math.min(10,Math.max(0,v))};
+const fmt=v=>(Math.round(v*100)/100).toString().replace('.',',');
+const subj=()=>S.find(s=>s.id===st.cur);
+function G(s){if(!st.g[s.id])st.g[s.id]={};const g=st.g[s.id];s.comps.forEach((c,i)=>{if(g[i]===undefined)g[i]=c.k==='v'?['']:''});return g}
+function val(c,raw){if(c.k==='s')return num(raw);const a=raw.map(num).filter(v=>v!==null);return a.length?a.reduce((x,y)=>x+y,0)/a.length:null}
+function final(s,vals,x){const v=vals.map(t=>t===null?x:t);if(s.top2){v.sort((a,b)=>b-a);return(v[0]+v[1])/2}return s.comps.reduce((t,c,i)=>t+c.w*v[i],0)}
+function renderInputs(){
+ const s=subj(),g=G(s);let h='<strong>'+s.name+'</strong>';
+ s.comps.forEach((c,i)=>{
+  if(c.k==='s')h+='<div class="row"><label for="f'+i+'">'+c.n+(c.sub?'<small>'+c.sub+'</small>':'')+'</label><input class="n" id="f'+i+'" data-i="'+i+'" inputmode="decimal" placeholder="—" value="'+(g[i]||'')+'"></div>';
+  else{h+='<div class="sub">'+c.n+'</div><div class="note">'+c.sub+'</div><div class="chips">';
+   g[i].forEach((t,j)=>{h+='<input class="n" aria-label="'+c.n+' nota '+(j+1)+'" data-i="'+i+'" data-j="'+j+'" inputmode="decimal" placeholder="—" value="'+t+'">'});
+   h+='<button class="mini" data-add="'+i+'" aria-label="Adicionar nota">+</button><button class="mini" data-rem="'+i+'" aria-label="Remover última nota">−</button></div>'}
+ });
+ $('inputs').innerHTML=h;
+ $('notes').innerHTML=s.notes.map(n=>'<p class="note">'+n+'</p>').join('');
+ update();
+}
+function update(){
+ const s=subj(),g=G(s),meta=num($('meta').value)??6;
+ const vals=s.comps.map((c,i)=>val(c,g[i]));
+ const pend=vals.map((v,i)=>v===null?s.comps[i].n:null).filter(Boolean);
+ const piso=final(s,vals,0),teto=final(s,vals,10);
+ let cls='',big='',msg='';
+ if(!pend.length){const f=final(s,vals,0);big=fmt(f);cls=f>=meta?'ok':'bad';msg=f>=meta?'Média final acima da meta. Falta só conferir a frequência.':'Média final abaixo da meta de '+fmt(meta)+'. Veja as regras de avaliação complementar abaixo.'}
+ else if(piso>=meta-1e-9){big='0';cls='ok';msg='Meta garantida: mesmo zerando o que falta, você fecha '+fmt(piso)+'.'}
+ else if(teto<meta-1e-9){big='—';cls='bad';msg='Não dá para chegar a '+fmt(meta)+' só com as notas restantes. Máximo possível: '+fmt(teto)+'. Veja a avaliação complementar abaixo.'}
+ else{let lo=0,hi=10;for(let k=0;k<40;k++){const m=(lo+hi)/2;final(s,vals,m)>=meta?hi=m:lo=m}
+  big=fmt(Math.ceil(hi*100)/100);msg='Nota mínima em cada avaliação que falta ('+pend.join(', ')+') para fechar '+fmt(meta)+'.'}
+ $('out').innerHTML='<div class="res '+cls+'"><div class="big">'+big+'</div><p class="msg">'+msg+'</p><div class="stats"><div>Se zerar o resto<b>'+fmt(piso)+'</b></div><div>Se tirar 10 no resto<b>'+fmt(teto)+'</b></div></div></div>';
+}
+function tabs(){$('tabs').innerHTML=S.map(s=>'<button class="tab" role="tab" aria-selected="'+(s.id===st.cur)+'" data-id="'+s.id+'">'+s.tab+'</button>').join('')}
+$('tabs').onclick=e=>{const b=e.target.closest('.tab');if(!b)return;st.cur=b.dataset.id;save();tabs();renderInputs()};
+$('inputs').addEventListener('input',e=>{const t=e.target;if(t.dataset.i===undefined)return;const g=G(subj());if(t.dataset.j!==undefined)g[t.dataset.i][t.dataset.j]=t.value;else g[t.dataset.i]=t.value;save();update()});
+$('inputs').addEventListener('click',e=>{const t=e.target,g=G(subj());if(t.dataset.add!==undefined){g[t.dataset.add].push('');save();renderInputs()}if(t.dataset.rem!==undefined){if(g[t.dataset.rem].length>1)g[t.dataset.rem].pop();save();renderInputs()}});
+$('meta').value=st.meta;
+$('meta').addEventListener('input',()=>{st.meta=$('meta').value;save();update()});
+$('reset').onclick=()=>{if(confirm('Limpar todas as notas desta matéria?')){delete st.g[st.cur];save();renderInputs()}};
+$('exp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(st,null,1)],{type:'application/json'}));a.download='notas-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+$('imp').onclick=()=>$('file').click();
+$('file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d||typeof d.g!=='object')throw 0;if(!confirm('Substituir as notas atuais pelas do backup?'))return;st=Object.assign({cur:'arq',meta:'6',g:{}},d);save();$('meta').value=st.meta;tabs();renderInputs()}catch(x){alert('Arquivo de backup inválido.')}};r.readAsText(f);e.target.value=''};
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+try{localStorage.setItem('_t','1');localStorage.removeItem('_t')}catch(e){$('stmsg').textContent='Atenção: este navegador está bloqueando o armazenamento (aba anônima?). As notas não serão salvas. Use Exportar backup.'}
+tabs();renderInputs();
+</script>
+</body>
+</html>
