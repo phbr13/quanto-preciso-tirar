@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Calculadora de médias</title>
+<title>Quanto preciso tirar? · 2º período Computação UFSCar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -39,12 +39,15 @@ input.n:focus-visible,button:focus-visible{outline:2px solid var(--acc);outline-
 .note{font-size:13px;color:var(--mute);margin:4px 0}
 .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .top .row{margin:0}
+.aviso{background:var(--accbg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 14px;font-size:14px}
+.aviso a{color:var(--acc)}
 .link{background:none;border:0;color:var(--mute);text-decoration:underline;font:14px Figtree,sans-serif;cursor:pointer;padding:6px 0}
 </style>
 </head>
 <body>
 <main>
 <h1>Calculadora de médias</h1>
+<div class="aviso"><strong>Só para o 2º período de Computação da UFSCar (2026).</strong> As matérias e fórmulas são fixas e seguem os planos de ensino da minha turma. Para outro curso ou semestre, o resultado não vale. Confira sempre o plano oficial. Projeto feito com IA; <a href="https://github.com/phbr13/quanto-preciso-tirar" target="_blank" rel="noopener">código e PRs no GitHub</a>.</div>
 <div class="tabs" id="tabs" role="tablist"></div>
 <div class="card top"><div class="row"><label for="meta">Média que quero fechar</label><input class="n" id="meta" inputmode="decimal" value="6"></div></div>
 <div id="out"></div>
